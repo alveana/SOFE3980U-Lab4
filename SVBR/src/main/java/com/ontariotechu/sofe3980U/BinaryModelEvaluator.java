@@ -3,8 +3,7 @@ package com.ontariotechu.sofe3980U;
 import com.opencsv.CSVReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-
+import java.util.Arrays;
 
 public class BinaryModelEvaluator {
     private static final double THRESHOLD = 0.5;
@@ -36,18 +35,24 @@ public class BinaryModelEvaluator {
         int nPositive = 0, nNegative = 0;
         double[] trueLabels, predictedScores;
         
-        try (CSVReader reader = new CSVReader(new FileReader(filename))) {
+        try{CSVReader reader = new CSVReader(new FileReader(filename));
             reader.readNext(); // Skip header
             String[] line;
             int index = 0;
             
             // Count rows first to initialize arrays
             while ((line = reader.readNext()) != null) count++;
+            
+            if (count == 0) {
+                System.err.println("Error: The CSV file is empty or only contains headers.");
+                return new double[]{0, 0, 0, 0, 0, 0};
+            }
+            
             trueLabels = new double[count];
             predictedScores = new double[count];
             
             reader.close();
-            reader.open(new FileReader(filename)); 
+            reader = new CSVReader(new FileReader(filename)); // Reopen file
             reader.readNext(); // Skip header again
             
             while ((line = reader.readNext()) != null) {
@@ -74,6 +79,7 @@ public class BinaryModelEvaluator {
                 }
                 index++;
             }
+            reader.close();
         } catch (IOException | NumberFormatException e) {
             System.err.println("Error reading file " + filename + ": " + e.getMessage());
             return new double[]{0, 0, 0, 0, 0, 0};
@@ -104,8 +110,8 @@ public class BinaryModelEvaluator {
                     else fp++;
                 }
             }
-            x[i] = (double) fp / nNegative;
-            y[i] = (double) tp / nPositive;
+            x[i] = (double) fp / Math.max(1, nNegative);
+            y[i] = (double) tp / Math.max(1, nPositive);
         }
         
         double auc = 0;

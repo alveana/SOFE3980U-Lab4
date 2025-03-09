@@ -1,6 +1,6 @@
 package com.ontariotechu.sofe3980U;
 
-import com.opencsv.*;
+import com.opencsv.CSVReader;
 
 import java.io.FileReader;
 import java.io.IOException;
